@@ -1,0 +1,73 @@
+Explination of the Customer Sales Data Analysis and Visualization Using Python and SQL
+
+import sqlite3
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+Importing Libraries: sqlite3: This helps us create and manage a small pretend database on our computer. pandas: This is like a super-smart table that helps us organize and play with our data. matplotlib.pyplot: This helps us draw pictures (graphs) to see our data in a nice way.
+
+# Step 1: Data Collection and Exploration with SQL
+sales_data = pd.read_csv(r"C:\Users\User\Downloads\Book1.csv")
+
+Reading the Data: We are opening a file called "Book1.csv" which has our sales data. This data is now in a table called sales_data.
+
+conn = sqlite3.connect(":memory:")
+sales_data.to_sql("sales_table", conn, if_exists="replace", index=False)
+
+Creating a Pretend Database: conn = sqlite3.connect(":memory:"): We are making a pretend database that lives in the computer's memory (like a chalkboard that we can write on and erase). sales_data.to_sql("sales_table", conn, if_exists="replace", index=False): We are copying our sales data into this pretend database and naming the table sales_table.
+
+# Querying the table structure, preview of data, and total sales separately
+query_structure = "PRAGMA table_info(sales_table);"
+query_preview = "SELECT * FROM sales_table LIMIT 5;"
+query_total_sales = "SELECT SUM(Amount) AS TotalSales FROM sales_table;"
+
+Writing SQL Queries: query_structure: This asks the database to show us the structure of our table. query_preview: This asks to show the first 5 rows of our data to see what it looks like. query_total_sales: This asks to calculate the total amount of sales.
+
+structure = pd.read_sql(query_structure, conn)
+preview = pd.read_sql(query_preview, conn)
+total_sales = pd.read_sql(query_total_sales, conn)
+
+Running the Queries: structure = pd.read_sql(query_structure, conn): We run the query to get the table structure and store it in structure. preview = pd.read_sql(query_preview, conn): We run the query to get a preview of the data and store it in preview. total_sales = pd.read_sql(query_total_sales, conn): We run the query to get the total sales and store it in total_sales.
+
+# Step 2: Data Analysis with Python
+mean_sales = sales_data['Amount'].mean()
+median_sales = sales_data['Amount'].median()
+
+Calculating Statistics: mean_sales: This calculates the average amount of sales. median_sales: This finds the middle value of the sales amounts (if you sorted them from smallest to largest).
+
+sales_data['SalesDate'] = pd.to_datetime(sales_data['SalesDate'])
+monthly_sales = sales_data.groupby(sales_data['SalesDate'].dt.to_period('M'))['Amount'].sum()
+
+Organizing Data by Month: sales_data['SalesDate'] = pd.to_datetime(sales_data['SalesDate']): We change the sales dates into a special date format. monthly_sales: We group the sales by month and add up the amounts for each month.
+
+# Step 3: Visualization
+plt.figure(figsize=(10, 6))
+monthly_sales.plot(kind='line')
+plt.title('Monthly Sales Trends')
+plt.xlabel('Month')
+plt.ylabel('Total Sales Amount')
+plt.show()
+
+Drawing the Graph: We make a picture (graph) showing how sales change each month. This helps us see trends or patterns.
+
+# Step 4: Insights
+sales_by_category = sales_data.groupby('ProductCategory')['Amount'].sum()
+top_selling_product = sales_by_category.idxmax()
+peak_sales_month = monthly_sales.idxmax()
+
+Finding Interesting Things: sales_by_category: We add up sales for each product category. top_selling_product: We find which product category sold the most. peak_sales_month: We find which month had the highest sales.
+
+# Step 5: Conclusion and Documentation
+print("Mean Sales Amount:", mean_sales)
+print("Median Sales Amount:", median_sales)
+if not total_sales.empty:
+    print("Total Sales Amount:", total_sales.iloc[0]['TotalSales'])
+else:
+    print("Total Sales Amount: No data available")
+print("Top Selling Product Category:", top_selling_product)
+print("Peak Sales Month:", peak_sales_month)
+
+Showing Results: We print out the average sales amount. We print out the middle sales amount. We print the total sales amount. We print the top-selling product category. We print the month with the highest sales.
+
+Click to add a cell.
